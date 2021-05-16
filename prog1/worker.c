@@ -1,3 +1,13 @@
+/**
+ *  \file worker.c
+ *
+ *  \brief Problem: Assignment 2 - MPI (circular cross-correlation)
+ *
+ *  File that simulates a worker and processes k characters from the file
+ *
+ *  \author Alina Yanchuk e Ana Sofia Moniz Fernandes
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -8,53 +18,55 @@
 #include "partfileinfo.h"
 #include <string.h>
 
-void process_data(PARTFILEINFO *partfileinfos) {
-        wchar_t c;
-        partfileinfos->n_words = 0;
-        partfileinfos->n_chars = 0;
-        partfileinfos->n_consonants = 0;
-        partfileinfos->in_word = 0;
-        partfileinfos->max_chars = 0;
-        partfileinfos->counting_array = (int **)calloc(50, sizeof(int *));
-		for (int j = 0; j<50; j++){
-			partfileinfos->counting_array[j] = (int *)calloc(j+2, sizeof(int));
-		}
-
-        for (int i = 0; i < partfileinfos->n_chars_readen; i++) {
-            c = partfileinfos->chars_read[i]; /* next char in file */
-            char converted_char = convert_multibyte(c);
-            if(!partfileinfos->in_word){
-                if(is_alpha_underscore(converted_char)){
-                    partfileinfos->in_word = 1;
-                    partfileinfos->n_words++;
-                    partfileinfos->n_chars++;
-                    partfileinfos->n_consonants = partfileinfos->n_consonants + !is_vowel(converted_char);
-                }
-                else if(is_apostrophe(converted_char) || is_space_separation_punctuation(converted_char)){
-                    continue;
-                }
-            }
-            else{
-                if(is_alpha_underscore(converted_char)){
-                    partfileinfos->n_chars++;
-                    partfileinfos->n_consonants = partfileinfos->n_consonants + !is_vowel(converted_char);
-                }
-                else if(is_apostrophe(converted_char)){
-                    continue;
-                }
-                else if(is_space_separation_punctuation(converted_char)){
-                    partfileinfos->in_word = 0;
-                    partfileinfos->counting_array[partfileinfos->n_chars-1][partfileinfos->n_consonants]++;
-                    if(partfileinfos->n_chars > partfileinfos->max_chars){
-                        partfileinfos->max_chars = partfileinfos->n_chars;
-                    }
-                    partfileinfos->n_chars = 0;
-                    partfileinfos->n_consonants = 0;
-                }
-            }
-
-        
+/**
+ *  \brief Function processDataChunk.
+ *
+ *  Processing of a data chunk. The approach given by the professor was followed:
+ *      -If in_word is false:
+ *          -if the char is alphanumeric or underscore, in_word is set to true, and we increment the total words, total
+ *              num of chars and the number of consonants
+ *          -if the char is apostrophe or space/separation/punctiation, in_word remains set to false
+ *      -If in_word is true:
+ *          -if the char is alpha or underscore, we increment chars and consonants;
+ *          -if char is apostrophe, we return;
+ *          -if char is space/separation/punctiation, we set in_word to false and update the word couting
+ *
+ */
+void processDataChunk(char *buf, PARTFILEINFO *partialInfo) {
+    char converted_char;
+    int buf_size = size_of_array(buf);
+    for(int i=0; i<buf_size;i++){
+        converted_char = buf[i];
+    }
+           
+    if(!(*partialInfo).in_word){
+        if(is_alpha_underscore(converted_char)){
+            (*partialInfo).in_word = 1;
+            (*partialInfo).n_words++;
+            (*partialInfo).n_chars++;
+            (*partialInfo).n_consonants = (*partialInfo).n_consonants + !is_vowel(converted_char);
         }
+        else if(is_apostrophe(converted_char) || is_space_separation_punctuation(converted_char)){
+            return;
+        }
+    }
+    else{
+        if(is_alpha_underscore(converted_char)){
+            (*partialInfo).n_chars++;
+            (*partialInfo).n_consonants = (*partialInfo).n_consonants + !is_vowel(converted_char);
+        }
+        else if(is_apostrophe(converted_char)){
+            return;
+        }
+        else if(is_space_separation_punctuation(converted_char)){
+            (*partialInfo).in_word = 0;
+            (*partialInfo).counting_array[(*partialInfo).n_chars-1][(*partialInfo).n_consonants]++;
+            if((*partialInfo).n_chars > (*partialInfo).max_chars){
+                (*partialInfo).max_chars = (*partialInfo).n_chars;
+            }
+            (*partialInfo).n_chars = 0;
+            (*partialInfo).n_consonants = 0;
+        }
+    }
 
-        
 }

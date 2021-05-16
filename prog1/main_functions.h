@@ -1,3 +1,20 @@
+/**
+ *  \file main_functions.h (functions file)
+ *
+ *  \brief Problem: Assignment 2 - MPI (circular cross-correlation)
+ *
+ *  Functions used to convert multibyte chars to unibyte and verify if a char is an end of word.
+ *
+ *  \author Alina Yanchuk e Ana Sofia Moniz Fernandes
+ */
+
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <wchar.h>
+#include <locale.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -6,8 +23,16 @@
 #include <locale.h>
 
 
-/* make conversion multibyte to singlebyte ->
- if it's already singlebyte, it breaks */
+/**
+ *  \brief Function convert_multibyte.
+ *
+ *   make conversion multibyte to singlebyte: 
+ *   if it's already singlebyte, it breaks
+ * 
+ *  @param c char to be converted
+ *  @return c in singlebyte
+ *
+ */
 char convert_multibyte(wchar_t c){
     switch (c) {
         /* left or right single quotion marks to apostrophe */
@@ -80,85 +105,29 @@ char convert_multibyte(wchar_t c){
 }
 
 
-/* check if is end of word : space, separation, punctiation or apostrophe. 1-> it is */
+/**
+ *  \brief Function is_end_of_word.
+ *
+ *   check if is end of word : space, separation, punctiation or apostrophe.
+ * 
+ *  @param c char to be checked
+ *  @return 1 if it is end of word, 0 otherwise.
+ *
+ */
 int is_end_of_word(unsigned char c){
-    if(c==' ' || c =='  ' || c==0xa){ //space
+    if(c==' ' || c ==0xa || c==0xa){ /* space */
         return 1;
     }
-    else if ((c=='-') || (c=='"') || (c=='[')||(c==']')||(c=='(')||(c==')')){ //separation
+    else if ((c=='-') || (c=='"') || (c=='[')||(c==']')||(c=='(')||(c==')')){ /* separation */
         return 1;
     }
-    else if(c==0x27){
+    else if(c==0x27){ /* apostrophe */
         return 1;
     }
-    else if(c=='.' || c == ',' || c==':' || c==';' || c == '?' || c =='!' || c == 0xE28093 || c == 0xE280A6 ){ //punctuation
-        return 1;
-    }
-    else{
-        return 0;
-    }
-}
-
-/* check if is vowel | 1-> is vowel */
-int is_vowel(unsigned char c){
-    if(c=='a' || c=='e' || c=='i' || c=='o' || c=='u' || c=='y'){
-        return 1;
-    }
-    else if(c=='A' || c=='E' || c=='I' || c=='O' || c=='U' || c=='Y'){
+    else if(c=='.' || c == ',' || c==':' || c==';' || c == '?' || c =='!'){ /* punctuation */
         return 1;
     }
     else{
         return 0;
     }
-}
-
-/* check if is alpha or underscore | 1-> is alpha or underscore */
-int is_alpha_underscore(unsigned char c){
-    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
-        return 1;
-    }
-    else if((c>='0')&&(c<='9')){
-        return 1;
-    }
-    else if(c=='_'){
-        return 1;
-    }
-    else{
-        return 0;
-    }
-}
-
-/* check if is space, separation or punctiation. 1-> it is */
-int is_space_separation_punctuation(unsigned char c){
-    if(c==' ' || c =='  ' || c==0xa){ //space
-        return 1;
-    }
-    else if ((c=='-') || (c=='"') || (c=='[')||(c==']')||(c=='(')||(c==')')){ //separation
-        return 1;
-    }
-    else if(c=='.' || c == ',' || c==':' || c==';' || c == '?' || c =='!' || c == 0xE28093 || c == 0xE280A6 ){ //punctuation
-        return 1;
-    }
-    else{
-        return 0;
-    }
-}
-
-/* check if is apostrophe. 1-> it is */
-int is_apostrophe(unsigned char c){
-    if(c==0x27){
-        return 1;
-    }
-    else{
-        return 0;
-    }
-}
-
-/* get size of array */
-int size_of_array(char *char_array){
-    int i = 0;
-    while (char_array[i] != NULL) {
-        i++;
-    }
-    return i;
 }

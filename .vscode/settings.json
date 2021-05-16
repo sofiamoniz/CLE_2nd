@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "partfileinfo.h": "c"
+        "partfileinfo.h": "c",
+        "ctype.h": "c",
+        "libgen.h": "c"
     }
 }
