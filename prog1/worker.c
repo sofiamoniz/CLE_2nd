@@ -16,7 +16,10 @@
 #include <ctype.h>
 #include <libgen.h>
 #include <string.h>
+
+#include "worker_functions.h"
 #include "partfileinfo.h"
+
 /**
  *  \brief Function processData.
  *
@@ -33,7 +36,7 @@
  * @param partialInfo contains the needed information to calculate the results from a worker 
  */
 
-void processData(char *buf, PartFileInfo *partialInfo) {
+void processDataChunk(char *buf, PartFileInfo *partialInfo) {
     char converted_char;
     int buf_size = size_of_array(buf);
     for(int i=0; i<buf_size;i++){

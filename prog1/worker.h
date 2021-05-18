@@ -11,6 +11,7 @@
 #ifndef WORKER_H
 #define WORKER_H
 
-extern void processData(char *buf, PARTFILEINFO *partialInfo);
+
+extern void processDataChunk(char *buf, PartFileInfo *partialInfo);
 
 #endif

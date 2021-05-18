@@ -9,14 +9,14 @@
  */
 
 #include <stdbool.h>
-#include "partfileinfo.h"
 
 #ifndef DISPATCHER_H
 #define DISPATCHER_H
 
 
-extern void loadFilesInfo(int nFiles, char *filenames[], PartFileInfo *partfileinfos, char *buf);
-extern int write_worker_results(PartFileInfo *partfileinfos);
-extern int printProcessingResults();
+
+extern void loadFilesInfo(int nFiles, char *filenames[], PartFileInfo *partfileinfos);
+extern void getDataChunk(int fileCurrenltyProcessed, PartFileInfo *partfileinfos, char *buf);
+extern void printProcessingResults(PartFileInfo *partfileinfos);
 
 #endif

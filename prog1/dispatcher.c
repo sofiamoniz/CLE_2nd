@@ -11,22 +11,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <wchar.h>
+#include <string.h>
+
+#include "dispatcher_functions.h"
+
 #include "partfileinfo.h"
-
-
 
 /** \brief variables used to construct the chunks */
 int MAX_SIZE_WRD = 50;
 int MAX_BYTES_READ = 12;
 
 /** \brief to control the position of file reading */
-static long pos;
+long pos = -1;
 
 /** \brief total number of filenames retrieved */
 int num_files;
 
 /** \brief pointer that contains the all the filenames passed in the arguments */
-char **filenames;
+static char ** filenames;
 
 /** \brief pointer that saves the total number of words found in each file. */
 int *total_n_words;
@@ -41,26 +44,21 @@ int files_idx = -1;
 int **gbl_counting_array;
 
 
-void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinfos, char *buf) 
+
+void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinfos) 
 {
-    num_files = nFiles;
-    filenames = inputFilenames;
-    total_n_words = malloc(nFiles);
-    total_max_chars = malloc(nFiles);
-    gbl_counting_array = (int **)calloc(50, sizeof(int *));
-    for (int j = 0; j<50; j++){
-        gbl_counting_array[j] = (int *)calloc(j+2, sizeof(int));
-    }
-    
+
+    filenames = malloc(nFiles * sizeof(char*));
+
     for (int i=0; i<nFiles; i++) {
+        filenames[i] = malloc((12) * sizeof(char));       /* memory allocation for the filenames*/
+        strcpy(filenames[i], inputFilenames[i]);
         FILE *f;                                                     /* file to process */
         f = fopen(inputFilenames[i], "r");  
         if (f == NULL) { 
             printf("Cannot open file \n"); 
             exit(0); 
         } 
-        files_idx++;
-        
         partfileinfos[i].fileId = i; /* initialize variables */
         partfileinfos[i].n_words = 0;
         partfileinfos[i].n_chars = 0;
@@ -71,56 +69,64 @@ void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinf
 		for (int j = 0; j<50; j++){
 			partfileinfos[i].counting_array[j] = (int *)calloc(j+2, sizeof(int));
 		}
+        partfileinfos[i].done = false;
+        partfileinfos[i].firstProcessing = true;
+    }
+}
 
-        int readen_chars = 0;
-        fseek(f, pos, SEEK_SET ); 
+void getDataChunk(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, char *buf)
+{
+    FILE *f = fopen(filenames[fileCurrentlyProcessed], "r");
 
-        wchar_t c = fgetwc(f);    /* get next char */
-        pos = ftell(f);   /* current position of file reading */
+    int readen_chars = 0;
+
+    if (partfileinfos[fileCurrentlyProcessed].firstProcessing==false) fseek(f, pos, SEEK_SET );  /* go to position where stopped read last time */
+    if (partfileinfos[fileCurrentlyProcessed].firstProcessing==true) partfileinfos[fileCurrentlyProcessed].firstProcessing = false;
+
+
+    wchar_t c = fgetwc(f);    /* get next char */
+    pos = ftell(f);   /* current position of file reading */
 
         /*first, we do the conversion - if char is not
         multibyte, it will remain unibyte*/
-        char converted_char = convert_multibyte(c);
+    char converted_char = convert_multibyte(c);
 
         /* if the number of chars read are still less than MAX_BYTES_READ, they can go directly to the buffer */
-        if(readen_chars<MAX_BYTES_READ){
-            buf[readen_chars] = converted_char;
-            readen_chars++;
-        }
+    if(readen_chars<MAX_BYTES_READ){
+        buf[readen_chars] = converted_char;
+        readen_chars++;
+    }
+
+   
         /* otherwise, there are two cases that can happen:
             1 - the char is not end of word -> we don't want to break words, so we add it to the array (using the extra space
             MAX_SIZE_WRD, that is there for this cases where the word is still not completed) 
             2- the char is end of word -> the buffer needs to be emptied and another word is starting
         */
-        else{
-            if(is_end_of_word(converted_char) == 0){
-                buf[readen_chars] = converted_char;
-                readen_chars++;
-            }
-            else{
-                memset(buf, 0, MAX_BYTES_READ+MAX_SIZE_WRD);
-                readen_chars = 0;
-                buf[readen_chars] = converted_char;
-                readen_chars++;
-            }
+    else{
+        if(is_end_of_word(converted_char) == 0){
+            buf[readen_chars] = converted_char;
+            readen_chars++;
         }
-
-        fclose(f);
+        else{
+            memset(buf, 0, MAX_BYTES_READ+MAX_SIZE_WRD);
+            readen_chars = 0;
+            buf[readen_chars] = converted_char;
+            readen_chars++;
+        }
     }
+
+     
+
+    fclose(f);
+
+    if ( c == WEOF)  { /* if last character of current file */
+    partfileinfos[fileCurrentlyProcessed].done = true;   /* done processing current file */
+    }
+    
 }
 
-int write_worker_results(PartFileInfo *partfileinfos) {
-    total_n_words[partfileinfos->fileId] += partfileinfos->n_words;
 
-    if (partfileinfos->max_chars > total_max_chars[files_idx])
-        total_max_chars[partfileinfos->fileId] = partfileinfos->max_chars;
-
-    for (int j = 0; j<50; j++){
-        gbl_counting_array[partfileinfos->fileId] += partfileinfos->counting_array[j];
-        
-    }
-    return 1;
-}
 
 
 /**
@@ -129,30 +135,30 @@ int write_worker_results(PartFileInfo *partfileinfos) {
  *  Operation carried out by main thread.
  */
 
-int printProcessingResults() {
+void printProcessingResults(PartFileInfo *partfileinfos) {
 
     for (int i=0; i<num_files; i++) {                  /* each partial file info */
 
         printf("\nFile name: %s\n", filenames[i]);
 
-        printf("Total number of words = %d\n", total_n_words[i]);
+        printf("Total number of words = %d\n", partfileinfos[i].n_words);
 
         printf("Word lenght\n");
 
 		printf("   ");
-		for(int j = 0; j<total_max_chars[i]; j++){
+		for(int j = 0; j<partfileinfos[i].max_chars; j++){
 			printf("%5d ", j+1);
 		}
 		printf("\n");
 
         //Print  number words each word length
 		printf("   ");
-		int *soma = (int *)calloc(total_max_chars[i], sizeof(int));
+		int *soma = (int *)calloc(partfileinfos[i].max_chars, sizeof(int));
 		int tmp = 0;
-		for(int j = 0; j<total_max_chars[i]; j++){
+		for(int j = 0; j<partfileinfos[i].max_chars; j++){
 			int ind_sum = 0;
 			for(int k = 0; k<j+2; k++){
-				ind_sum = ind_sum + gbl_counting_array[j][k];
+				ind_sum = ind_sum + partfileinfos[i].counting_array[j][k];
 			}
 			tmp = tmp + ind_sum;
 			soma[j] = ind_sum;
@@ -163,7 +169,7 @@ int printProcessingResults() {
 
 		//FINAL PRINT
 		printf("   ");
-		for(int j = 0; j<total_max_chars[i]; j++){
+		for(int j = 0; j<partfileinfos[i].max_chars; j++){
 			double s = (double)soma[j];
 			double st = (double)tmp;
 			double r = (double)(s/st*100);
@@ -172,9 +178,9 @@ int printProcessingResults() {
 		printf("\n");
 
 	
-		for(int j = 0; j<total_max_chars[i]+1; j++){ 
+		for(int j = 0; j<partfileinfos[i].max_chars+1; j++){ 
 			printf("%2d ", j);
-			for(int k = 0; k<total_max_chars[i]; k++){ 
+			for(int k = 0; k<partfileinfos[i].max_chars; k++){ 
 				if(k<j-1){
 					printf("      ");
 				}
@@ -183,7 +189,7 @@ int printProcessingResults() {
 					printf("%5.1f ", r);
 				}
 				else{
-					double cell = (double)gbl_counting_array[k][j];
+					double cell = (double)partfileinfos[i].counting_array[k][j];
 					double s = (double)soma[k];
 					double r = (double)(cell/s*100);
 					printf("%5.1f ", r);
@@ -193,6 +199,6 @@ int printProcessingResults() {
 		}
 		printf("\n");
     }
-    return EXIT_SUCCESS;
+
 
 }
