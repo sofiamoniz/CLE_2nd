@@ -3,7 +3,7 @@
  *
  *  \brief Problem: Assignment 2 - MPI (circular cross-correlation)
  *
- *  File that simulates a worker and processes k characters from the file
+ *  Implements all the methods that will be called by the worker.
  *
  *  \author Alina Yanchuk e Ana Sofia Moniz Fernandes
  */
@@ -15,11 +15,10 @@
 #include <time.h>
 #include <ctype.h>
 #include <libgen.h>
-#include "partfileinfo.h"
 #include <string.h>
-
+#include "partfileinfo.h"
 /**
- *  \brief Function processDataChunk.
+ *  \brief Function processData.
  *
  *  Processing of a data chunk. The approach given by the professor was followed:
  *      -If in_word is false:
@@ -31,8 +30,10 @@
  *          -if char is apostrophe, we return;
  *          -if char is space/separation/punctiation, we set in_word to false and update the word couting
  *
+ * @param partialInfo contains the needed information to calculate the results from a worker 
  */
-void processDataChunk(char *buf, PARTFILEINFO *partialInfo) {
+
+void processData(char *buf, PartFileInfo *partialInfo) {
     char converted_char;
     int buf_size = size_of_array(buf);
     for(int i=0; i<buf_size;i++){

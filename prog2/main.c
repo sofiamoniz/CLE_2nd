@@ -109,7 +109,7 @@ void dispatcher(char *filenames[], int nFiles)
  *  Processes the received chunk of data and delivers the results back to the dispatcher.
  * 
  */
-void worker(int rank) 
+void worker() 
 {
     
     bool workToBeDone;      /* info received by dispatcher */
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
     }
 
     else 
-        worker(rank); /* worker, worker life cycle */
+        worker(); /* worker, worker life cycle */
 
     MPI_Finalize();
 
