@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
-#include <time.h>
 #include <ctype.h>
 #include <libgen.h>
 #include <string.h>

@@ -11,8 +11,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <unistd.h>
-#include <pthread.h>
 #include <math.h>
 #include <time.h>
 #include <mpi.h>
@@ -51,7 +49,7 @@ void dispatcher(char *filenames[], int nFiles)
     int fileCurrentlyProcessed = 0;       /* file currently being processed */
     bool workToBeDone = true;       /* to control the end of work */
     int lastWorkerReceivingInfo = 1;       /* last worker that received a chunk of data to process */
-
+    char buf[MAX_BYTES_TO_READ+MAX_SIZE_WORD];
 
     loadFilesInfo(nFiles, filenames, partfileinfos);
 
@@ -72,7 +70,6 @@ void dispatcher(char *filenames[], int nFiles)
         /* send infos to the workers in a parallelized way */
         for (workerId=1; workerId <= nWorkers; workerId++) 
         {
-            char buf[MAX_BYTES_TO_READ+MAX_SIZE_WORD];
 
             getDataChunk(fileCurrentlyProcessed, partfileinfos, buf);
 
@@ -88,8 +85,15 @@ void dispatcher(char *filenames[], int nFiles)
 
             MPI_Send(&partfileinfos[fileCurrentlyProcessed], sizeof(PartFileInfo), MPI_BYTE, workerId, 0, MPI_COMM_WORLD);
 
-           
+        }
         
+        for (workerId=1; workerId <= lastWorkerReceivingInfo; workerId++) /* received partial info computed by workers */
+        {      
+            PartFileInfo partfileinforeceived;
+
+            MPI_Recv(&partfileinforeceived, sizeof(PartFileInfo), MPI_BYTE, workerId, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+            savePartialResults(fileCurrentlyProcessed, partfileinfos, partfileinforeceived);
         }
 
     }
@@ -127,7 +131,10 @@ void worker()
 
         processDataChunk(buf, &partfileinfo);
 
-        printf("%d\n",partfileinfo.n_words);
+        MPI_Send(&partfileinfo, sizeof(PartFileInfo), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
+
+        printf("Number words: %d\n", partfileinfo.n_words);
+
     }
     
 

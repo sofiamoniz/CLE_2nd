@@ -8,22 +8,28 @@
  *  \author Alina Yanchuk e Ana Sofia Moniz Fernandes
  */
 
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <wchar.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <errno.h>
 #include <string.h>
+#include <wchar.h>
+#include <locale.h>
 
 #include "dispatcher_functions.h"
-
 #include "partfileinfo.h"
 
 /** \brief variables used to construct the chunks */
 int MAX_SIZE_WRD = 50;
 int MAX_BYTES_READ = 12;
+int readen_chars;
 
 /** \brief to control the position of file reading */
-long pos = -1;
+static long pos;
 
 /** \brief total number of filenames retrieved */
 int num_files;
@@ -43,6 +49,7 @@ static char ** filenames;
  */
 void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinfos) 
 {
+    setlocale(LC_CTYPE, "");
 
     filenames = malloc(nFiles * sizeof(char*));
 
@@ -69,6 +76,8 @@ void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinf
 		}
         partfileinfos[i].done = false;
         partfileinfos[i].firstProcessing = true;
+
+        fclose(f);
     }
 }
 
@@ -85,24 +94,25 @@ void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinf
  */
 void getDataChunk(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, char *buf)
 {
-    FILE *f = fopen(filenames[fileCurrentlyProcessed], "r");
+    readen_chars = 0;
 
-    int readen_chars = 0;
+    FILE *f = fopen(filenames[fileCurrentlyProcessed], "r"); 
 
     if (partfileinfos[fileCurrentlyProcessed].firstProcessing==false) fseek(f, pos, SEEK_SET );  /* go to position where stopped read last time */
-    if (partfileinfos[fileCurrentlyProcessed].firstProcessing==true) partfileinfos[fileCurrentlyProcessed].firstProcessing = false;
+    else partfileinfos[fileCurrentlyProcessed].firstProcessing = false;
 
-
-    wchar_t c = fgetwc(f);    /* get next char */
+    wchar_t c;
+    c = fgetwc(f);    /* get next char */
     pos = ftell(f);   /* current position of file reading */
 
     /*first, we do the conversion - if char is not
     multibyte, it will remain unibyte*/
     char converted_char = convert_multibyte(c);
 
+    
+  
     /* if the number of chars read are still less than MAX_BYTES_READ, they can go directly to the buffer */
-    if(readen_chars<MAX_BYTES_READ)
-    {
+    if(readen_chars<MAX_BYTES_READ){
         buf[readen_chars] = converted_char;
         readen_chars++;
     }
@@ -111,15 +121,12 @@ void getDataChunk(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, char 
         MAX_SIZE_WRD, that is there for this cases where the word is still not completed) 
         2- the char is end of word -> the buffer needs to be emptied and another word is starting
     */
-    else
-    {
-        if(is_end_of_word(converted_char) == 0)
-        {
+    else{
+        if(is_end_of_word(converted_char) == 0){
             buf[readen_chars] = converted_char;
             readen_chars++;
         }
-        else
-        {
+        else{
             memset(buf, 0, MAX_BYTES_READ+MAX_SIZE_WRD);
             readen_chars = 0;
             buf[readen_chars] = converted_char;
@@ -128,12 +135,24 @@ void getDataChunk(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, char 
     }
 
     fclose(f);
-
-    if ( c == WEOF)  /* if last character of current file */
-    { 
-    partfileinfos[fileCurrentlyProcessed].done = true;   /* done processing current file */
+    
+    if (c == WEOF)  { /* if last character of current file */
+        partfileinfos[fileCurrentlyProcessed].done = true;   /* done processing current file */
     }
     
+}
+
+
+void savePartialResults(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, PartFileInfo *partfileinforeceived) {
+
+        partfileinfos[fileCurrentlyProcessed].n_words += partfileinforeceived->n_words;
+        partfileinfos[fileCurrentlyProcessed].n_chars += partfileinforeceived->n_chars;
+        partfileinfos[fileCurrentlyProcessed].n_consonants += partfileinforeceived->n_consonants;
+        partfileinfos[fileCurrentlyProcessed].n_words += partfileinforeceived->n_words;
+        partfileinfos[fileCurrentlyProcessed].done = partfileinforeceived->done;
+        partfileinfos[fileCurrentlyProcessed].firstProcessing = partfileinforeceived->firstProcessing;
+        partfileinfos[fileCurrentlyProcessed].max_chars = partfileinforeceived->max_chars;
+
 }
 
 

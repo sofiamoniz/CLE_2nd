@@ -8,6 +8,8 @@
  *  \author Alina Yanchuk e Ana Sofia Moniz Fernandes
  */
 
+#include "partfileinfo.h"
+
 #ifndef WORKER_H
 #define WORKER_H
 
