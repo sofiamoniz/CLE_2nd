@@ -1,3 +1,13 @@
+/**
+ *  \file partfileinfo.h
+ *
+ *  \brief Problem: Assignment 2 - MPI (circular cross-correlation)
+ *
+ *  Multiprocess message passing - Main program
+ *
+ *  \author Alina Yanchuk e Ana Sofia Moniz Fernandes
+ */
+
 #include <stdbool.h>
 
 #ifndef PARTFILEINFO_H

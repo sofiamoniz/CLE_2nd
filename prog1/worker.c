@@ -21,7 +21,7 @@
 #include "partfileinfo.h"
 
 /**
- *  \brief Function processData.
+ *  \brief Function processDataChunk.
  *
  *  Processing of a data chunk. The approach given by the professor was followed:
  *      -If in_word is false:
@@ -33,39 +33,50 @@
  *          -if char is apostrophe, we return;
  *          -if char is space/separation/punctiation, we set in_word to false and update the word couting
  *
+ * @param buf contains a data chunk - set of chars that form complete words
  * @param partialInfo contains the needed information to calculate the results from a worker 
  */
 
-void processDataChunk(char *buf, PartFileInfo *partialInfo) {
+void processDataChunk(char *buf, PartFileInfo *partialInfo) 
+{
     char converted_char;
     int buf_size = size_of_array(buf);
-    for(int i=0; i<buf_size;i++){
+    for(int i=0; i<buf_size;i++)
+    {
         converted_char = buf[i];
     }
            
-    if(!(*partialInfo).in_word){
-        if(is_alpha_underscore(converted_char)){
+    if(!(*partialInfo).in_word)
+    {
+        if(is_alpha_underscore(converted_char))
+        {
             (*partialInfo).in_word = 1;
             (*partialInfo).n_words++;
             (*partialInfo).n_chars++;
             (*partialInfo).n_consonants = (*partialInfo).n_consonants + !is_vowel(converted_char);
         }
-        else if(is_apostrophe(converted_char) || is_space_separation_punctuation(converted_char)){
+        else if(is_apostrophe(converted_char) || is_space_separation_punctuation(converted_char))
+        {
             return;
         }
     }
-    else{
-        if(is_alpha_underscore(converted_char)){
+    else
+    {
+        if(is_alpha_underscore(converted_char))
+        {
             (*partialInfo).n_chars++;
             (*partialInfo).n_consonants = (*partialInfo).n_consonants + !is_vowel(converted_char);
         }
-        else if(is_apostrophe(converted_char)){
+        else if(is_apostrophe(converted_char))
+        {
             return;
         }
-        else if(is_space_separation_punctuation(converted_char)){
+        else if(is_space_separation_punctuation(converted_char))
+        {
             (*partialInfo).in_word = 0;
             (*partialInfo).counting_array[(*partialInfo).n_chars-1][(*partialInfo).n_consonants]++;
-            if((*partialInfo).n_chars > (*partialInfo).max_chars){
+            if((*partialInfo).n_chars > (*partialInfo).max_chars)
+            {
                 (*partialInfo).max_chars = (*partialInfo).n_chars;
             }
             (*partialInfo).n_chars = 0;

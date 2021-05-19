@@ -22,7 +22,6 @@
 #include "partfileinfo.h"
 
 
-
 /** \brief number of workers */
 int nWorkers;
 
@@ -31,7 +30,15 @@ int MAX_SIZE_WORD = 50;
 int MAX_BYTES_TO_READ = 12;
 
 
-
+/**
+ *  \brief Dispatcher life cycle.
+ *
+ *  Sends to workers chunks of data to be processed, waits for their processing, saves partial results
+ *  and, when all work is done, lets them know of the fact and prints the results of the whole processing.
+ * 
+ *  @param filenames names of the files to be processed
+ *  @param nFiles num of files to be processed
+ */
 void dispatcher(char *filenames[], int nFiles) 
 {
     
@@ -48,8 +55,10 @@ void dispatcher(char *filenames[], int nFiles)
 
     loadFilesInfo(nFiles, filenames, partfileinfos);
 
-    while(workToBeDone){
-        if (partfileinfos[fileCurrentlyProcessed].done == true) {
+    while(workToBeDone)
+    {
+        if (partfileinfos[fileCurrentlyProcessed].done == true)
+        {
             if (fileCurrentlyProcessed == nFiles - 1) 
             {       /* if current file is the last file to be processed */
                 workToBeDone = false;
@@ -97,7 +106,6 @@ void worker()
 {
     bool workToBeDone;      /* info received by dispatcher */
 
-    
 
     while (true)
     {
@@ -126,13 +134,16 @@ void worker()
 }
 
 /**
- *  \brief Main thread.
+ *  \brief Main function.
  *
- *  Its role is store the filenames in the shared region; starting the simulation by generating the intervening workers and
- *  waiting for their termination; and also check and show the results;
+ *  Main thread that runs the program / executes the processes.
+ * 
+ *  @param argc
+ *  @param argv
  * 
  */
-int main(int argc, char **argv) {
+int main(int argc, char **argv) 
+{
 
     int rank;
     int size;  
@@ -144,18 +155,21 @@ int main(int argc, char **argv) {
     nWorkers = size - 1; /* number of processes/workers */
 
 
-    if (rank == 0) { /* dispatcher */
+    if (rank == 0) /* dispatcher */
+    { 
 
         char *filenames[argc-2];                         /* file names */
 
-        for(int i=1; i<argc; i++) {  /* get file names */
+        for(int i=1; i<argc; i++) /* get file names */
+        {  
             filenames[i-1] = argv[i];
         }
 
         dispatcher(filenames, argc - 1);
 
     }
-    else{
+    else
+    {
         worker();
     }
 

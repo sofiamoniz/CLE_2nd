@@ -33,7 +33,8 @@
  *  @return c in singlebyte
  *
  */
-char convert_multibyte_main(wchar_t c){
+char convert_multibyte_main(wchar_t c)
+{
     switch (c) {
         /* left or right single quotion marks to apostrophe */
         case L'`': c=0x27; break;
@@ -114,17 +115,22 @@ char convert_multibyte_main(wchar_t c){
  *  @return 1 if it is end of word, 0 otherwise.
  *
  */
-int is_end_of_word_main(unsigned char c){
-    if(c==' ' || c ==0xa || c==0xa){ /* space */
+int is_end_of_word_main(unsigned char c)
+{
+    if(c==' ' || c ==0xa ) /* space */
+    { 
         return 1;
     }
-    else if ((c=='-') || (c=='"') || (c=='[')||(c==']')||(c=='(')||(c==')')){ /* separation */
+    else if ((c=='-') || (c=='"') || (c=='[')||(c==']')||(c=='(')||(c==')')) /* separation */
+    { 
         return 1;
     }
-    else if(c==0x27){ /* apostrophe */
+    else if(c==0x27) /* apostrophe */
+    { 
         return 1;
     }
-    else if(c=='.' || c == ',' || c==':' || c==';' || c == '?' || c =='!'){ /* punctuation */
+    else if(c=='.' || c == ',' || c==':' || c==';' || c == '?' || c =='!') /* punctuation */
+    { 
         return 1;
     }
     else{

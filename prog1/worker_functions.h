@@ -25,14 +25,18 @@
  *  @return 1 if it is vowel, 0 otherwise.
  *
  */
-int is_vowel(unsigned char c){
-    if(c=='a' || c=='e' || c=='i' || c=='o' || c=='u' || c=='y'){
+int is_vowel(unsigned char c)
+{
+    if(c=='a' || c=='e' || c=='i' || c=='o' || c=='u' || c=='y')
+    {
         return 1;
     }
-    else if(c=='A' || c=='E' || c=='I' || c=='O' || c=='U' || c=='Y'){
+    else if(c=='A' || c=='E' || c=='I' || c=='O' || c=='U' || c=='Y')
+    {
         return 1;
     }
-    else{
+    else
+    {
         return 0;
     }
 }
@@ -46,14 +50,18 @@ int is_vowel(unsigned char c){
  *  @return 1 if it is alpha or underscore, 0 otherwise.
  *
  */
-int is_alpha_underscore(unsigned char c){
-    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+int is_alpha_underscore(unsigned char c)
+{
+    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) 
+    {
         return 1;
     }
-    else if((c>='0')&&(c<='9')){
+    else if((c>='0')&&(c<='9'))
+    {
         return 1;
     }
-    else if(c=='_'){
+    else if(c=='_')
+    {
         return 1;
     }
     else{
@@ -70,14 +78,17 @@ int is_alpha_underscore(unsigned char c){
  *  @return 1 if it is space, separation or punctuation, 0 otherwise.
  *
  */
-int is_space_separation_punctuation(unsigned char c){
-    if(c==' ' || c =='  ' || c==0xa){ /* space */
+int is_space_separation_punctuation(unsigned char c)
+{
+    if(c==' ' || c==0xa){ /* space */
         return 1;
     }
-    else if ((c=='-') || (c=='"') || (c=='[')||(c==']')||(c=='(')||(c==')')){ /* separation */
+    else if ((c=='-') || (c=='"') || (c=='[')||(c==']')||(c=='(')||(c==')')) /* separation */
+    { 
         return 1;
     }
-    else if(c=='.' || c == ',' || c==':' || c==';' || c == '?' || c =='!' || c == 0xE28093 || c == 0xE280A6 ){ /* punctuation */
+    else if(c=='.' || c == ',' || c==':' || c==';' || c == '?' || c =='!') /* punctuation */
+    { 
         return 1;
     }
     else{
@@ -94,11 +105,14 @@ int is_space_separation_punctuation(unsigned char c){
  *  @return 1 if it is apostrophe, 0 otherwise.
  *
  */
-int is_apostrophe(unsigned char c){
-    if(c==0x27){
+int is_apostrophe(unsigned char c)
+{
+    if(c==0x27)
+    {
         return 1;
     }
-    else{
+    else
+    {
         return 0;
     }
 }
@@ -112,9 +126,11 @@ int is_apostrophe(unsigned char c){
  *  @return i, the size of the array
  *
  */
-int size_of_array(char *char_array){
+int size_of_array(char *char_array)
+{
     int i = 0;
-    while (char_array[i] != NULL) {
+    while (char_array[i] != NULL) 
+    {
         i++;
     }
     return i;
