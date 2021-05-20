@@ -14,6 +14,6 @@
 #define WORKER_H
 
  /** \brief Processing of a data chunk. The approach given by the professor was followed. */
-extern void processDataChunk(char *buf, PartFileInfo *partialInfo); 
+extern void processDataChunk(char *buf, PartFileInfo partialInfo); 
 
 #endif

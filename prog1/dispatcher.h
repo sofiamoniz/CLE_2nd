@@ -18,7 +18,7 @@
 
 extern void loadFilesInfo(int nFiles, char *filenames[], PartFileInfo *partfileinfos);
 extern void getDataChunk(int fileCurrenltyProcessed, PartFileInfo *partfileinfos, char *buf);
-void savePartialResults(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, PartFileInfo partfileinforeceived);
+extern void savePartialResults(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, PartFileInfo partfileinforeceived);
 extern void printProcessingResults(PartFileInfo *partfileinfos);
 
 #endif

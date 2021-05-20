@@ -49,19 +49,15 @@ static char ** filenames;
  */
 void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinfos) 
 {
-    printf("\n loadfilesinfo");
+
     setlocale(LC_CTYPE, "");
 
     filenames = malloc(nFiles * sizeof(char*));
-
+    
     for (int i=0; i<nFiles; i++) 
     {
-        printf("\n vou-me brekar");
-        printf("\n inputFilenames %s", inputFilenames[1] );
         filenames[i] = malloc((12) * sizeof(char));       /* memory allocation for the filenames*/
         strcpy(filenames[i], inputFilenames[i]);
-        printf("\n cheguei aqui");
-        printf(" \n sou o ficheiro %s", inputFilenames[i]);
         FILE *f;                                                     /* file to process */
         f = fopen(inputFilenames[i], "r");  
         if (f == NULL) 
@@ -85,7 +81,8 @@ void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinf
 
         fclose(f);
     }
-    printf("terminei loadfilesinfo");
+
+    //printf("Dispatcher done loading files.\n");
 }
 
 /**
@@ -150,6 +147,8 @@ void getDataChunk(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, char 
 
 
 void savePartialResults(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, PartFileInfo *partfileinforeceived) {
+
+    //printf("Received n words: %d\n", partfileinforeceived->n_words);
 
         partfileinfos[fileCurrentlyProcessed].n_words += partfileinforeceived->n_words;
         partfileinfos[fileCurrentlyProcessed].n_chars += partfileinforeceived->n_chars;

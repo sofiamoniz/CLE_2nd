@@ -36,7 +36,7 @@
  * @param partialInfo contains the needed information to calculate the results from a worker 
  */
 
-void processDataChunk(char *buf, PartFileInfo *partialInfo) 
+void processDataChunk(char *buf, PartFileInfo partialInfo) 
 {
     char converted_char;
     int buf_size = size_of_array(buf);
@@ -45,14 +45,14 @@ void processDataChunk(char *buf, PartFileInfo *partialInfo)
         converted_char = buf[i];
     }
            
-    if(!(*partialInfo).in_word)
+    if(!partialInfo.in_word)
     {
         if(is_alpha_underscore(converted_char))
         {
-            (*partialInfo).in_word = 1;
-            (*partialInfo).n_words++;
-            (*partialInfo).n_chars++;
-            (*partialInfo).n_consonants = (*partialInfo).n_consonants + !is_vowel(converted_char);
+            partialInfo.in_word = 1;
+            partialInfo.n_words++;
+            partialInfo.n_chars++;
+            partialInfo.n_consonants = partialInfo.n_consonants + !is_vowel(converted_char);
         }
         else if(is_apostrophe(converted_char) || is_space_separation_punctuation(converted_char))
         {
@@ -63,8 +63,8 @@ void processDataChunk(char *buf, PartFileInfo *partialInfo)
     {
         if(is_alpha_underscore(converted_char))
         {
-            (*partialInfo).n_chars++;
-            (*partialInfo).n_consonants = (*partialInfo).n_consonants + !is_vowel(converted_char);
+            partialInfo.n_chars++;
+            partialInfo.n_consonants = partialInfo.n_consonants + !is_vowel(converted_char);
         }
         else if(is_apostrophe(converted_char))
         {
@@ -72,14 +72,14 @@ void processDataChunk(char *buf, PartFileInfo *partialInfo)
         }
         else if(is_space_separation_punctuation(converted_char))
         {
-            (*partialInfo).in_word = 0;
-            (*partialInfo).counting_array[(*partialInfo).n_chars-1][(*partialInfo).n_consonants]++;
-            if((*partialInfo).n_chars > (*partialInfo).max_chars)
+            partialInfo.in_word = 0;
+            partialInfo.counting_array[partialInfo.n_chars-1][partialInfo.n_consonants]++;
+            if(partialInfo.n_chars > partialInfo.max_chars)
             {
-                (*partialInfo).max_chars = (*partialInfo).n_chars;
+                partialInfo.max_chars = partialInfo.n_chars;
             }
-            (*partialInfo).n_chars = 0;
-            (*partialInfo).n_consonants = 0;
+            partialInfo.n_chars = 0;
+            partialInfo.n_consonants = 0;
         }
     }
 
