@@ -11,9 +11,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <unistd.h>
 #include <math.h>
 #include <time.h>
-#include <string.h> 
 #include <mpi.h>
 
 #include "dispatcher.h"
@@ -40,37 +40,23 @@ int MAX_BYTES_TO_READ = 12;
  */
 void dispatcher(char *filenames[], int nFiles) 
 {
-    
     int workerId;
-    PartFileInfo partfileinfos[nFiles];
-    int fileCurrentlyProcessed = 0;       /* file currently being processed */
+    PartFileInfo partfileinfo;
     bool workToBeDone = true;       /* to control the end of work */
     int lastWorkerReceivingInfo = 1;       /* last worker that received a chunk of data to process */
     char buf[MAX_BYTES_TO_READ+MAX_SIZE_WORD];
 
-    loadFilesInfo(nFiles, filenames, partfileinfos);
+    loadFilesInfo(nFiles, filenames);
 
     while(workToBeDone)
-    {
-        if (partfileinfos[fileCurrentlyProcessed].done == true)  /* if no more work to be done in current file */
-        {      
-            if (fileCurrentlyProcessed == nFiles - 1)  /* if current file is the last file to be processed */
-            {      
-                workToBeDone = false;
-                for (int i = 1; i <= nWorkers; i++) 
-                    MPI_Send(&workToBeDone, 1, MPI_C_BOOL, i, 0, MPI_COMM_WORLD);       /* tell workers there is no more work to be done */
-                break;                                                    /* end */
-            }
-            fileCurrentlyProcessed++;       /* next file to process */
-        } 
+    {  
         /* send infos to the workers in a parallelized way */
         for (workerId=1; workerId <= nWorkers; workerId++) 
-        {
-            if (partfileinfos[fileCurrentlyProcessed].done == true) 
-                break;
-
-            getDataChunk(fileCurrentlyProcessed, partfileinfos, buf);
-            for(int i=0;i<MAX_BYTES_TO_READ+MAX_SIZE_WORD;i++) printf("%d",buf[i]);
+        {   
+            if (getDataChunk(&partfileinfo, buf) == 1) {
+                workToBeDone = false;
+                break; 
+            };
 
             lastWorkerReceivingInfo = workerId;
 
@@ -79,25 +65,31 @@ void dispatcher(char *filenames[], int nFiles)
 
             MPI_Send(buf, MAX_BYTES_TO_READ+MAX_SIZE_WORD, MPI_CHAR, workerId, 0, MPI_COMM_WORLD);
 
+            MPI_Send(&partfileinfo, sizeof(PartFileInfo), MPI_BYTE, workerId, 0, MPI_COMM_WORLD);
+        
         }
 
         for (workerId=1; workerId <= lastWorkerReceivingInfo; workerId++) /* received partial info computed by workers */
         {      
-            //printf("entrei");
+
+            if(!workToBeDone) break;
+
             PartFileInfo partfileinforeceived;
 
             MPI_Recv(&partfileinforeceived, sizeof(PartFileInfo), MPI_BYTE, workerId, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-            savePartialResults(fileCurrentlyProcessed, partfileinfos, partfileinforeceived);
+            savePartialResults(&partfileinforeceived);
        
         }
-        
+ 
     }
-
+ 
     for (int i = 1; i <= nWorkers; i++) {
         //printf("entrei");
         MPI_Send(&workToBeDone, 1, MPI_C_BOOL, i, 0, MPI_COMM_WORLD);       /* tell workers there is no more work to be done */
     }
+
+    printProcessingResults();
 }
 
 /**
@@ -109,8 +101,8 @@ void dispatcher(char *filenames[], int nFiles)
 void worker()
 {
     bool workToBeDone;      /* info received by dispatcher */
+    PartFileInfo partfileinforeceived;
 
-    
     while (true)
     {
         MPI_Recv(&workToBeDone, 1, MPI_C_BOOL, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -123,31 +115,14 @@ void worker()
             //printf("Worker with rank %d terminated...\n", rank);
             return;
         }
-
-        PartFileInfo partfileinfo;
-
-        partfileinfo.fileId = 0; /* initialize variables */
-        partfileinfo.n_words = 0;
-        partfileinfo.n_chars = 0;
-        partfileinfo.n_consonants = 0;
-        partfileinfo.in_word = 0;
-        partfileinfo.max_chars = 0;
-        partfileinfo.counting_array = (int **)calloc(50, sizeof(int *));
-		for (int j = 0; j<50; j++){
-			partfileinfo.counting_array[j] = (int *)calloc(j+2, sizeof(int));
-		}
-        partfileinfo.done = false;
-        partfileinfo.firstProcessing = true;
-
+        
         MPI_Recv(buf, MAX_BYTES_TO_READ+MAX_SIZE_WORD , MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        
+        MPI_Recv(&partfileinforeceived, sizeof(PartFileInfo), MPI_BYTE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        processDataChunk(buf, partfileinfo);
+        processDataChunk(buf, &partfileinforeceived);
 
-        //printf("Number words: %d\n", partfileinfo.n_chars);
-
-        MPI_Send(&partfileinfo, sizeof(PartFileInfo), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
+        MPI_Send(&partfileinforeceived, sizeof(PartFileInfo), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
 
         
 

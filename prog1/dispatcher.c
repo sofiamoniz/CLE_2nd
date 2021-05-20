@@ -28,14 +28,20 @@ int MAX_SIZE_WRD = 50;
 int MAX_BYTES_READ = 12;
 int readen_chars;
 
+int fileCurrentlyProcessed = 0;
+
+
 /** \brief to control the position of file reading */
 static long pos;
 
 /** \brief total number of filenames retrieved */
-int num_files;
+static int nFiles;
 
 /** \brief pointer that contains the all the filenames passed in the arguments */
 static char ** filenames;
+
+/** \brief all partial file infos */
+static PartFileInfo * partfileinfos;
 
 /**
  *  \brief Function loadFilesInfo.
@@ -47,12 +53,16 @@ static char ** filenames;
  *  @param partfileinfos PartFileInfo struct
  *
  */
-void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinfos) 
+void loadFilesInfo(int numberFiles, char *inputFilenames[]) 
 {
 
     setlocale(LC_CTYPE, "");
 
+    nFiles = numberFiles;
+
     filenames = malloc(nFiles * sizeof(char*));
+
+    partfileinfos = (PartFileInfo*)malloc(sizeof(PartFileInfo) * nFiles);
     
     for (int i=0; i<nFiles; i++) 
     {
@@ -91,13 +101,21 @@ void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinf
  *  Operation carried out by workers.
  * 
  *  @param fileCurrentlyProcessed file that is currently being processed
- *  @param partfileinfos PartFileInfo struct
  *  @param buf responsible for carrying the data chunks. Buf (buffer) has size of MAX_BYTES_TO_READ bytes + MAX_SIZE_WORD -> this way,
     we prevent the case where the last word that was readen is not complete. It will be a set of complete words
  * 
  */
-void getDataChunk(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, char *buf)
+int getDataChunk(PartFileInfo *externpartfileinfo, char *buf)
 {
+
+    if (partfileinfos[fileCurrentlyProcessed].done == true) {     /* if no more data to process in current file */  
+        if (fileCurrentlyProcessed == nFiles - 1) {       /* if current file is the last file to be processed */
+            return 1;                                                      /* end */
+        }
+        
+        fileCurrentlyProcessed++;       /* next file to process */
+    }  
+
     readen_chars = 0;
 
     FILE *f = fopen(filenames[fileCurrentlyProcessed], "r"); 
@@ -137,26 +155,29 @@ void getDataChunk(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, char 
     }
 
     fclose(f);
-    
+
     if (c == WEOF)  { /* if last character of current file */
         partfileinfos[fileCurrentlyProcessed].done = true;   /* done processing current file */
     }
 
-    
+    *externpartfileinfo = partfileinfos[fileCurrentlyProcessed];
+
+    return 0;
 }
 
 
-void savePartialResults(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, PartFileInfo *partfileinforeceived) {
+void savePartialResults(PartFileInfo *partfileinfo) {
 
-    //printf("Received n words: %d\n", partfileinforeceived->n_words);
+    partfileinfos[fileCurrentlyProcessed].n_words += partfileinfo->n_words;
+    partfileinfos[fileCurrentlyProcessed].n_chars += partfileinfo->n_chars;
+    partfileinfos[fileCurrentlyProcessed].n_consonants += partfileinfo->n_consonants;
+    partfileinfos[fileCurrentlyProcessed].counting_array = partfileinfo->counting_array;
+    partfileinfos[fileCurrentlyProcessed].done = partfileinfo->done;
+    partfileinfos[fileCurrentlyProcessed].max_chars = partfileinfo->max_chars;
+    partfileinfos[fileCurrentlyProcessed].firstProcessing = partfileinfo->firstProcessing;
 
-        partfileinfos[fileCurrentlyProcessed].n_words += partfileinforeceived->n_words;
-        partfileinfos[fileCurrentlyProcessed].n_chars += partfileinforeceived->n_chars;
-        partfileinfos[fileCurrentlyProcessed].n_consonants += partfileinforeceived->n_consonants;
-        partfileinfos[fileCurrentlyProcessed].n_words += partfileinforeceived->n_words;
-        partfileinfos[fileCurrentlyProcessed].done = partfileinforeceived->done;
-        partfileinfos[fileCurrentlyProcessed].firstProcessing = partfileinforeceived->firstProcessing;
-        partfileinfos[fileCurrentlyProcessed].max_chars = partfileinforeceived->max_chars;
+
+
 
 }
 
@@ -169,10 +190,10 @@ void savePartialResults(int fileCurrentlyProcessed, PartFileInfo *partfileinfos,
  *  @param partfileinfos PartFileInfo struct
  */
 
-void printProcessingResults(PartFileInfo *partfileinfos) 
+void printProcessingResults() 
 {
 
-    for (int i=0; i<num_files; i++) /* each partial file info */
+    for (int i=0; i<nFiles; i++) /* each partial file info */
     {                  
 
         printf("\nFile name: %s\n", filenames[i]);
