@@ -129,7 +129,7 @@ int is_apostrophe(unsigned char c)
 int size_of_array(char *char_array)
 {
     int i = 0;
-    while (char_array[i] != NULL) 
+    while (char_array[i] != '\0') 
     {
         i++;
     }

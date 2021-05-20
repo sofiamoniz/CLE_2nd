@@ -49,14 +49,19 @@ static char ** filenames;
  */
 void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinfos) 
 {
+    printf("\n loadfilesinfo");
     setlocale(LC_CTYPE, "");
 
     filenames = malloc(nFiles * sizeof(char*));
 
     for (int i=0; i<nFiles; i++) 
     {
+        printf("\n vou-me brekar");
+        printf("\n inputFilenames %s", inputFilenames[1] );
         filenames[i] = malloc((12) * sizeof(char));       /* memory allocation for the filenames*/
         strcpy(filenames[i], inputFilenames[i]);
+        printf("\n cheguei aqui");
+        printf(" \n sou o ficheiro %s", inputFilenames[i]);
         FILE *f;                                                     /* file to process */
         f = fopen(inputFilenames[i], "r");  
         if (f == NULL) 
@@ -64,6 +69,7 @@ void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinf
             printf("Cannot open file \n"); 
             exit(0); 
         } 
+        
         partfileinfos[i].fileId = i; /* initialize variables */
         partfileinfos[i].n_words = 0;
         partfileinfos[i].n_chars = 0;
@@ -79,6 +85,7 @@ void loadFilesInfo(int nFiles, char *inputFilenames[], PartFileInfo *partfileinf
 
         fclose(f);
     }
+    printf("terminei loadfilesinfo");
 }
 
 /**
@@ -109,8 +116,6 @@ void getDataChunk(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, char 
     multibyte, it will remain unibyte*/
     char converted_char = convert_multibyte(c);
 
-    
-  
     /* if the number of chars read are still less than MAX_BYTES_READ, they can go directly to the buffer */
     if(readen_chars<MAX_BYTES_READ){
         buf[readen_chars] = converted_char;
@@ -139,6 +144,7 @@ void getDataChunk(int fileCurrentlyProcessed, PartFileInfo *partfileinfos, char 
     if (c == WEOF)  { /* if last character of current file */
         partfileinfos[fileCurrentlyProcessed].done = true;   /* done processing current file */
     }
+
     
 }
 
