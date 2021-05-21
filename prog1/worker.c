@@ -39,11 +39,11 @@
 void processDataChunk(char *buf, PartFileInfo *partialInfo) {
 
     int buf_size = size_of_array(buf);
-
+    //printf("size %d ",buf_size);
     for(int i=0; i<buf_size;i++){
         char converted_char = buf[i];
        
-        printf("%d",converted_char);
+        //printf("aiaiai %d",converted_char);
         if(!(*partialInfo).in_word){
             if(is_alpha_underscore(converted_char)){
                 (*partialInfo).in_word = 1;
@@ -75,7 +75,5 @@ void processDataChunk(char *buf, PartFileInfo *partialInfo) {
         }
     }
 
-     
-    
 
 }

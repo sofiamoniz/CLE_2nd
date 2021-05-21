@@ -87,7 +87,7 @@ void loadFilesInfo(int numberFiles, char *inputFilenames[])
             exit(0); 
         } 
         
-        partfileinfos[i].fileId = i; /* initialize variables */
+        partfileinfos[i].fileId = i;
         partfileinfos[i].n_words = 0;
         partfileinfos[i].n_chars = 0;
         partfileinfos[i].n_consonants = 0;
@@ -98,7 +98,7 @@ void loadFilesInfo(int numberFiles, char *inputFilenames[])
 			partfileinfos[i].counting_array[j] = (int *)calloc(j+2, sizeof(int));
 		}
         partfileinfos[i].done = false;
-        partfileinfos[i].firstProcessing = true;
+        partfileinfos[i].firstProcessing = true; 
 
         fclose(f);
     }
@@ -131,9 +131,9 @@ int getDataChunk(char *buf)
 
     FILE *f = fopen(filenames[fileCurrentlyProcessed], "r"); 
 
-    memset(buf, 0, MAX_BYTES_READ+MAX_SIZE_WRD); // clean array
+    memset(buf, 0, MAX_BYTES_READ+MAX_SIZE_WRD); /* clean buffer */
 
-    while(readen_chars<50+12)
+    while(readen_chars<MAX_BYTES_READ+MAX_SIZE_WRD)
     {
 
         if (partfileinfos[fileCurrentlyProcessed].firstProcessing==false) fseek(f, pos, SEEK_SET );  /* go to position where stopped read last time */
@@ -146,6 +146,7 @@ int getDataChunk(char *buf)
         /*first, we do the conversion - if char is not
         multibyte, it will remain unibyte*/
         char converted_char = convert_multibyte(c);
+ 
 
         if (c == WEOF) {
             partfileinfos[fileCurrentlyProcessed].done = true;
@@ -173,13 +174,14 @@ int getDataChunk(char *buf)
 
 
 void savePartialResults(PartFileInfo partfileinfo) {
-
     n_words+=partfileinfo.n_words;
+    //printf("\n n_words %d",partfileinfo.n_words);
     n_chars+=partfileinfo.n_chars;
     n_consonants+=partfileinfo.n_consonants;
+    //printf("max chars em savePartialResults %d", partfileinfo.max_chars);
     max_chars=partfileinfo.max_chars;
-
-
+    printf("\nmax chars em savePartialResults %d", max_chars);
+    counting_array = partfileinfo.counting_array;
 
 }
 
@@ -203,7 +205,7 @@ void printProcessingResults()
         printf("Total number of words = %d\n",n_words);
 
         printf("Word lenght\n");
-
+        printf("max chars %d", max_chars);
 		printf("   ");
 		for(int j = 0; j<max_chars; j++){
 			printf("%5d ", j+1);

@@ -55,9 +55,9 @@ void dispatcher(char *filenames[], int nFiles)
         /* send infos to the workers in a parallelized way */
         for (workerId=1; workerId <= nWorkers; workerId++) 
         {   
-            
-            
-            if (getDataChunk(buf) == 1) {
+
+            if (getDataChunk(buf) == 1) 
+            {
                 workToBeDone = false;
                 break; 
             };
@@ -79,6 +79,7 @@ void dispatcher(char *filenames[], int nFiles)
             PartFileInfo partfileinforeceived;
 
             MPI_Recv(&partfileinforeceived, sizeof(PartFileInfo), MPI_BYTE, workerId, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
 
             savePartialResults(partfileinforeceived);
        
@@ -119,19 +120,19 @@ void worker()
         
 
         PartFileInfo partfileinfo;
-
-            partfileinfo.fileId = 0; /* initialize variables */
-            partfileinfo.n_words = 0;
-            partfileinfo.n_chars = 0;
-            partfileinfo.n_consonants = 0;
-            partfileinfo.in_word = 0;
-            partfileinfo.max_chars = 0;
-            partfileinfo.counting_array = (int **)calloc(50, sizeof(int *));
-            for (int j = 0; j<50; j++){
-                partfileinfo.counting_array[j] = (int *)calloc(j+2, sizeof(int));
-            }
-            partfileinfo.done = false;
-            partfileinfo.firstProcessing = false;
+        
+        partfileinfo.fileId = 0; 
+        partfileinfo.n_words = 0;
+        partfileinfo.n_chars = 0;
+        partfileinfo.n_consonants = 0;
+        partfileinfo.in_word = 0;
+        partfileinfo.max_chars = 0;
+        partfileinfo.counting_array = (int **)calloc(50, sizeof(int *));
+        for (int j = 0; j<50; j++){
+            partfileinfo.counting_array[j] = (int *)calloc(j+2, sizeof(int));
+        }
+        partfileinfo.done = false;
+        partfileinfo.firstProcessing = false;
         
         MPI_Recv(buf, MAX_BYTES_TO_READ+MAX_SIZE_WORD , MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
