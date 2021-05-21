@@ -29,6 +29,8 @@ int MAX_SIZE_WORD = 50;
 int MAX_BYTES_TO_READ = 12;
 
 
+
+
 /**
  *  \brief Dispatcher life cycle.
  *
@@ -41,11 +43,11 @@ int MAX_BYTES_TO_READ = 12;
 void dispatcher(char *filenames[], int nFiles) 
 {
     int workerId;
-    PartFileInfo partfileinfo;
+    
     bool workToBeDone = true;       /* to control the end of work */
     int lastWorkerReceivingInfo = 1;       /* last worker that received a chunk of data to process */
     char buf[MAX_BYTES_TO_READ+MAX_SIZE_WORD];
-
+    
     loadFilesInfo(nFiles, filenames);
 
     while(workToBeDone)
@@ -53,7 +55,9 @@ void dispatcher(char *filenames[], int nFiles)
         /* send infos to the workers in a parallelized way */
         for (workerId=1; workerId <= nWorkers; workerId++) 
         {   
-            if (getDataChunk(&partfileinfo, buf) == 1) {
+            
+            
+            if (getDataChunk(buf) == 1) {
                 workToBeDone = false;
                 break; 
             };
@@ -64,8 +68,6 @@ void dispatcher(char *filenames[], int nFiles)
             MPI_Send(&workToBeDone, 1, MPI_C_BOOL, workerId, 0, MPI_COMM_WORLD);
 
             MPI_Send(buf, MAX_BYTES_TO_READ+MAX_SIZE_WORD, MPI_CHAR, workerId, 0, MPI_COMM_WORLD);
-
-            MPI_Send(&partfileinfo, sizeof(PartFileInfo), MPI_BYTE, workerId, 0, MPI_COMM_WORLD);
         
         }
 
@@ -78,7 +80,7 @@ void dispatcher(char *filenames[], int nFiles)
 
             MPI_Recv(&partfileinforeceived, sizeof(PartFileInfo), MPI_BYTE, workerId, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-            savePartialResults(&partfileinforeceived);
+            savePartialResults(partfileinforeceived);
        
         }
  
@@ -101,30 +103,41 @@ void dispatcher(char *filenames[], int nFiles)
 void worker()
 {
     bool workToBeDone;      /* info received by dispatcher */
-    PartFileInfo partfileinforeceived;
-
+    
     while (true)
     {
         MPI_Recv(&workToBeDone, 1, MPI_C_BOOL, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        /* buffer has size of MAX_BYTES_TO_READ bytes + MAX_SIZE_WORD -> this way,
-        we prevent the case where the last word that was readen is not complete. It will be a set of complete words. */
-        char buf[MAX_BYTES_TO_READ+MAX_SIZE_WORD];
 
         if (!workToBeDone)  /* no more work to be done by workers */
         {     
             //printf("Worker with rank %d terminated...\n", rank);
             return;
         }
+         
+
+        char buf[MAX_BYTES_TO_READ+MAX_SIZE_WORD];
+        
+
+        PartFileInfo partfileinfo;
+
+            partfileinfo.fileId = 0; /* initialize variables */
+            partfileinfo.n_words = 0;
+            partfileinfo.n_chars = 0;
+            partfileinfo.n_consonants = 0;
+            partfileinfo.in_word = 0;
+            partfileinfo.max_chars = 0;
+            partfileinfo.counting_array = (int **)calloc(50, sizeof(int *));
+            for (int j = 0; j<50; j++){
+                partfileinfo.counting_array[j] = (int *)calloc(j+2, sizeof(int));
+            }
+            partfileinfo.done = false;
+            partfileinfo.firstProcessing = false;
         
         MPI_Recv(buf, MAX_BYTES_TO_READ+MAX_SIZE_WORD , MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        MPI_Recv(&partfileinforeceived, sizeof(PartFileInfo), MPI_BYTE, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        processDataChunk(buf, &partfileinfo);
 
-        processDataChunk(buf, &partfileinforeceived);
-
-        MPI_Send(&partfileinforeceived, sizeof(PartFileInfo), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
-
-        
+        MPI_Send(&partfileinfo, sizeof(PartFileInfo), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
 
     }
     
