@@ -142,7 +142,6 @@ int * convert_2d_array(int ** counting_array)
 
     //int array[i][y];
     int rows, columns;
-    int random;
 
 
     int * arr_1D = malloc(sizeof(int) * 50 * 52);
@@ -154,17 +153,16 @@ int * convert_2d_array(int ** counting_array)
         {
             for(columns=0;columns<52;columns++)
                 {
-                    random=rand()%100+1;
-
-                    counting_array[rows][columns] = random;
-                    //printf("%i\t",counting_array[rows][columns]);
-                    // The code for converting 2D to 1D array 
+                    //printf("\nElemento %d ", counting_array[rows][columns]);
                     arr_1D[count++] =  counting_array[rows][columns];
                 }
-
-            //printf("\n");
         }
-
+    /*
+     for (int k = 0; k < count; ++k)
+        {
+            printf("%d ", arr_1D[k]);
+        }
+        */
 
     return arr_1D;
 

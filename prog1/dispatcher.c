@@ -182,7 +182,7 @@ void savePartialResults(PartFileInfo partfileinfo, int* array_1D) {
      * Copy all elements from source array to dest array
      */
     int loop;
-    for(loop = 0; loop < size_of_array_dispatcher(array_1D); loop++) {
+    for(loop = 0; loop < sizeof(array_1D); loop++) {
       final_array[loop] = array_1D[loop];
    }
 
@@ -220,7 +220,10 @@ void printProcessingResults() {
 		for(int j = 0; j<partfileinfos[i].max_chars; j++){
 			int ind_sum = 0;
 			for(int k = 0; k<j+2; k++){
-				ind_sum = ind_sum + final_array[k];
+                if(j == 0){
+				    ind_sum = ind_sum + final_array[k];
+                }
+				ind_sum = ind_sum + final_array[j+k+j];
 			}
 			tmp = tmp + ind_sum;
 			soma[j] = ind_sum;

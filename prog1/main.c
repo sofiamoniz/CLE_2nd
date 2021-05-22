@@ -78,8 +78,8 @@ void dispatcher(char *filenames[], int nFiles)
             PartFileInfo partfileinforeceived;
 
             int * arr_1D = malloc(sizeof(int) * 50 * 52);
-            int max_chars = 0;
-            int n_words = 0;
+            //int max_chars = 0;
+            //int n_words = 0;
 
             MPI_Recv(&partfileinforeceived, sizeof(PartFileInfo), MPI_BYTE, workerId, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
@@ -90,10 +90,12 @@ void dispatcher(char *filenames[], int nFiles)
             //MPI_Recv(n_words,1,MPI_INT, workerId, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             
             //printf("%d",partfileinforeceived.counting_array[0][1]); ESTE ARRAY TA TODO BUGADO, NEM PASSA
-            //for (int k = 0; k < 50; ++k)
-            //{
-                //printf("%d ", arr_1D[k]);
-            //}
+            /*
+            for (int k = 0; k < 50; ++k)
+            {
+                printf("%d ", arr_1D[k]);
+            }
+            */
 
             savePartialResults(partfileinforeceived, arr_1D);
        
@@ -142,15 +144,16 @@ void worker()
         
         MPI_Recv(buf, MAX_BYTES_TO_READ+MAX_SIZE_WORD , MPI_CHAR, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-        int * arr_1D = malloc(sizeof(int) * 50 * 52);
+        //int * arr_1D = malloc(sizeof(int) * 50 * 52);
         int max_chars = 0;
         int n_words = 0;
 
         processDataChunk(buf, &partfileinfo);
 
-        arr_1D = getArrayCounting1D(arr_1D);
+        int * arr_1D = getArrayCounting1D(arr_1D);
         max_chars = getMaxChars();
         n_words = getNWords();
+
 
         MPI_Send(&partfileinfo, sizeof(PartFileInfo), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
 
