@@ -135,3 +135,37 @@ int size_of_array(char *char_array)
     }
     return i;
 }
+
+
+int * convert_2d_array(int ** counting_array)
+{
+
+    //int array[i][y];
+    int rows, columns;
+    int random;
+
+
+    int * arr_1D = malloc(sizeof(int) * 50 * 52);
+    if (arr_1D == NULL)
+        exit(-1);
+
+    int count = 0;
+    for(rows=0;rows<50;rows++)
+        {
+            for(columns=0;columns<52;columns++)
+                {
+                    random=rand()%100+1;
+
+                    counting_array[rows][columns] = random;
+                    //printf("%i\t",counting_array[rows][columns]);
+                    // The code for converting 2D to 1D array 
+                    arr_1D[count++] =  counting_array[rows][columns];
+                }
+
+            //printf("\n");
+        }
+
+
+    return arr_1D;
+
+}

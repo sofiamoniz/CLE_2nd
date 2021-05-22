@@ -29,6 +29,8 @@ int MAX_BYTES_READ = 12;
 
 int fileCurrentlyProcessed = 0;
 
+int * final_array;
+
 
 /** \brief to control the position of file reading */
 static long pos;
@@ -168,17 +170,22 @@ int getDataChunk(char *buf)
 }
 
 
-void savePartialResults(PartFileInfo partfileinfo) {
+void savePartialResults(PartFileInfo partfileinfo, int* array_1D) {
 
     partfileinfos[fileCurrentlyProcessed].n_words+=partfileinfo.n_words;
     partfileinfos[fileCurrentlyProcessed].n_chars+=partfileinfo.n_chars;
     partfileinfos[fileCurrentlyProcessed].n_consonants+=partfileinfo.n_consonants;
     if(partfileinfo.max_chars > partfileinfos[fileCurrentlyProcessed].max_chars) partfileinfos[fileCurrentlyProcessed].max_chars=partfileinfo.max_chars;
-    for (int j = 0; j<partfileinfo.max_chars; j++){
-        for(int k=0; k<j+2; k++) {
-            partfileinfos[fileCurrentlyProcessed].counting_array[j][k] += partfileinfo.counting_array[j][k];
-        }
-    }
+    final_array = malloc(sizeof(int) * 50 * 52);
+    
+    /*
+     * Copy all elements from source array to dest array
+     */
+    int loop;
+    for(loop = 0; loop < size_of_array_dispatcher(array_1D); loop++) {
+      final_array[loop] = array_1D[loop];
+   }
+
 }
 
 
@@ -213,7 +220,7 @@ void printProcessingResults() {
 		for(int j = 0; j<partfileinfos[i].max_chars; j++){
 			int ind_sum = 0;
 			for(int k = 0; k<j+2; k++){
-				ind_sum = ind_sum + partfileinfos[i].counting_array[j][k];
+				ind_sum = ind_sum + final_array[k];
 			}
 			tmp = tmp + ind_sum;
 			soma[j] = ind_sum;
@@ -244,7 +251,7 @@ void printProcessingResults() {
 					printf("%5.1f ", r);
 				}
 				else{
-					double cell = (double)partfileinfos[i].counting_array[k][j];
+					double cell = (double)final_array[k];
 					double s = (double)soma[k];
 					double r = (double)(cell/s*100);
 					printf("%5.1f ", r);

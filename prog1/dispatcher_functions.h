@@ -126,3 +126,13 @@ int is_end_of_word(unsigned char c)
         return 0;
     }
 }
+
+int size_of_array_dispatcher(int *char_array)
+{
+    int i = 0;
+    while (char_array[i] != '\0') 
+    {
+        i++;
+    }
+    return i;
+}

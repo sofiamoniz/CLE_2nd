@@ -18,7 +18,9 @@
 
 #include "worker_functions.h"
 #include "partfileinfo.h"
-
+int **counting_array;
+int n_words;
+int max_chars;
 /**
  *  \brief Function processDataChunk.
  *
@@ -37,6 +39,13 @@
  */
 
 void processDataChunk(char *buf, PartFileInfo *partialInfo) {
+    //int n_chars = 0;
+    //int n_consonants = 0;
+    //int in_word = 0;
+    counting_array = (int **)calloc(50, sizeof(int *));
+    for (int j = 0; j<50; j++){
+        counting_array[j] = (int *)calloc(j+2, sizeof(int));
+    }
 
     int buf_size = size_of_array(buf);
 
@@ -63,8 +72,8 @@ void processDataChunk(char *buf, PartFileInfo *partialInfo) {
                 return;
             }
             else if(is_space_separation_punctuation(converted_char)){
-                (*partialInfo).counting_array[(*partialInfo).n_chars-1][(*partialInfo).n_consonants]++;
-                
+                //(*partialInfo).counting_array[(*partialInfo).n_chars-1][(*partialInfo).n_consonants]++;
+                counting_array[(*partialInfo).n_chars-1][(*partialInfo).n_consonants]++;
                 if((*partialInfo).n_chars > (*partialInfo).max_chars){
                     (*partialInfo).max_chars = (*partialInfo).n_chars;
                 }
@@ -72,8 +81,28 @@ void processDataChunk(char *buf, PartFileInfo *partialInfo) {
             }
         }
     }
+    //arr_1D = convert_2d_array(counting_array);
+    /*
+    int i = 0;
+    printf("%d ola", arr_1D[0]);
+    while (arr_1D[i] != '\0') 
+    {
+        printf("\n aqui %d", arr_1D[i]);
+        i++;
+    }
+    */
 
-     
-    
+}
 
+int * getArrayCounting1D(int * arr_1D){
+    arr_1D = convert_2d_array(counting_array);
+    return arr_1D;
+}
+
+int getNWords(){
+    return n_words;
+}
+
+int getMaxChars(){
+    return max_chars;
 }
