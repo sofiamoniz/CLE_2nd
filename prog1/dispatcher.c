@@ -176,12 +176,12 @@ void savePartialResults(PartFileInfo partfileinfo) {
     partfileinfos[fileCurrentlyProcessed].n_chars+=partfileinfo.n_chars;
     partfileinfos[fileCurrentlyProcessed].n_consonants+=partfileinfo.n_consonants;
     if(partfileinfo.max_chars > partfileinfos[fileCurrentlyProcessed].max_chars) partfileinfos[fileCurrentlyProcessed].max_chars=partfileinfo.max_chars;
-    /*
     for (int j = 0; j<partfileinfo.max_chars; j++){
         for(int k=0; k<j+2; k++) {
             partfileinfos[fileCurrentlyProcessed].counting_array[j][k] += partfileinfo.counting_array[j][k];
         }
-    }*/
+    }
+    /*
     arr_1D = malloc(sizeof(int) * 50 * 52);
     int random;
     int count = 0;
@@ -200,7 +200,7 @@ void savePartialResults(PartFileInfo partfileinfo) {
 
             //printf("\n");
         }
-
+    */
 }
 
 
@@ -235,7 +235,7 @@ void printProcessingResults() {
 		for(int j = 0; j<partfileinfos[i].max_chars; j++){
 			int ind_sum = 0;
 			for(int k = 0; k<j+2; k++){
-				ind_sum = ind_sum + arr_1D[k];
+				ind_sum = ind_sum + partfileinfos[i].counting_array[j][k];
 			}
 			tmp = tmp + ind_sum;
 			soma[j] = ind_sum;
@@ -266,7 +266,7 @@ void printProcessingResults() {
 					printf("%5.1f ", r);
 				}
 				else{
-					double cell = (double)arr_1D[k];
+					double cell = (double)partfileinfos[i].counting_array[j][k];
 					double s = (double)soma[k];
 					double r = (double)(cell/s*100);
 					printf("%5.1f ", r);
