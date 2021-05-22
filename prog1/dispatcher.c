@@ -42,6 +42,8 @@ static char ** filenames;
 /** \brief all partial file infos */
 static PartFileInfo * partfileinfos;
 
+int * arr_1D;
+
 /**
  *  \brief Function loadFilesInfo.
  *
@@ -174,11 +176,31 @@ void savePartialResults(PartFileInfo partfileinfo) {
     partfileinfos[fileCurrentlyProcessed].n_chars+=partfileinfo.n_chars;
     partfileinfos[fileCurrentlyProcessed].n_consonants+=partfileinfo.n_consonants;
     if(partfileinfo.max_chars > partfileinfos[fileCurrentlyProcessed].max_chars) partfileinfos[fileCurrentlyProcessed].max_chars=partfileinfo.max_chars;
+    /*
     for (int j = 0; j<partfileinfo.max_chars; j++){
         for(int k=0; k<j+2; k++) {
             partfileinfos[fileCurrentlyProcessed].counting_array[j][k] += partfileinfo.counting_array[j][k];
         }
-    }
+    }*/
+    arr_1D = malloc(sizeof(int) * 50 * 52);
+    int random;
+    int count = 0;
+    int rows, columns;
+    for(rows=0;rows<50;rows++)
+        {
+            for(columns=0;columns<52;columns++)
+                {
+                    random=rand()%100+1;
+
+                    partfileinfo.counting_array[rows][columns] = random;
+                    //printf("%i\t",partfileinfo.counting_array[rows][columns]);
+                    // The code for converting 2D to 1D array 
+                    arr_1D[count++] =  partfileinfo.counting_array[rows][columns];
+                }
+
+            //printf("\n");
+        }
+
 }
 
 
@@ -213,7 +235,7 @@ void printProcessingResults() {
 		for(int j = 0; j<partfileinfos[i].max_chars; j++){
 			int ind_sum = 0;
 			for(int k = 0; k<j+2; k++){
-				ind_sum = ind_sum + partfileinfos[i].counting_array[j][k];
+				ind_sum = ind_sum + arr_1D[k];
 			}
 			tmp = tmp + ind_sum;
 			soma[j] = ind_sum;
@@ -244,7 +266,7 @@ void printProcessingResults() {
 					printf("%5.1f ", r);
 				}
 				else{
-					double cell = (double)partfileinfos[i].counting_array[k][j];
+					double cell = (double)arr_1D[k];
 					double s = (double)soma[k];
 					double r = (double)(cell/s*100);
 					printf("%5.1f ", r);
