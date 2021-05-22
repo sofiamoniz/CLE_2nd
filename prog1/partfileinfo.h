@@ -15,7 +15,7 @@
 
 /** \brief struct to store data of one file*/
 typedef struct {
-   int  fileId;    /* file with data */  
+   int fileId;    /* file with data */  
    int n_words;    /* number words */
    int n_chars; /* number chars */
    int n_consonants;    /* number consonants */

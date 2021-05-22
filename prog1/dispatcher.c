@@ -177,14 +177,13 @@ void savePartialResults(PartFileInfo partfileinfo, int* array_1D) {
     partfileinfos[fileCurrentlyProcessed].n_consonants+=partfileinfo.n_consonants;
     if(partfileinfo.max_chars > partfileinfos[fileCurrentlyProcessed].max_chars) partfileinfos[fileCurrentlyProcessed].max_chars=partfileinfo.max_chars;
     final_array = malloc(sizeof(int) * 50 * 52);
-    
     /*
      * Copy all elements from source array to dest array
      */
     int loop;
     for(loop = 0; loop < sizeof(array_1D); loop++) {
       final_array[loop] = array_1D[loop];
-   }
+    }
 
 }
 

@@ -145,8 +145,6 @@ int * convert_2d_array(int ** counting_array)
 
 
     int * arr_1D = malloc(sizeof(int) * 50 * 52);
-    if (arr_1D == NULL)
-        exit(-1);
 
     int count = 0;
     for(rows=0;rows<50;rows++)
