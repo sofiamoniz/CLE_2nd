@@ -82,10 +82,6 @@ void loadFilesInfo(int numberFiles, char *inputFilenames[])
         partfileinfos[i].n_consonants = 0;
         partfileinfos[i].in_word = 0;
         partfileinfos[i].max_chars = 0;
-        partfileinfos[i].counting_array = (int **)calloc(50, sizeof(int *));
-		for (int j = 0; j<50; j++){
-			partfileinfos[i].counting_array[j] = (int *)calloc(j+2, sizeof(int));
-		}
         partfileinfos[i].done = false;
         partfileinfos[i].firstProcessing = true;
 
@@ -178,9 +174,11 @@ void savePartialResults(PartFileInfo partfileinfo) {
     partfileinfos[fileCurrentlyProcessed].n_chars+=partfileinfo.n_chars;
     partfileinfos[fileCurrentlyProcessed].n_consonants+=partfileinfo.n_consonants;
     if(partfileinfo.max_chars > partfileinfos[fileCurrentlyProcessed].max_chars) partfileinfos[fileCurrentlyProcessed].max_chars=partfileinfo.max_chars;
-    //printf("%d",partfileinfo.counting_array[0][0]);
-
-
+    for (int j = 0; j<partfileinfo.max_chars; j++){
+        for(int k=0; k<j+2; k++) {
+            partfileinfos[fileCurrentlyProcessed].counting_array[j][k] += partfileinfo.counting_array[j][k];
+        }
+    }
 }
 
 

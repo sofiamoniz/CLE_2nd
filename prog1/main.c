@@ -77,11 +77,6 @@ void dispatcher(char *filenames[], int nFiles)
 
             PartFileInfo partfileinforeceived;
 
-            partfileinforeceived.counting_array = (int **)calloc(50, sizeof(int *));
-            for (int j = 0; j<50; j++){
-                partfileinforeceived.counting_array[j] = (int *)calloc(j+2, sizeof(int));
-            }
-
             MPI_Recv(&partfileinforeceived, sizeof(PartFileInfo), MPI_BYTE, workerId, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             
             //printf("%d",partfileinforeceived.counting_array[0][1]); ESTE ARRAY TA TODO BUGADO, NEM PASSA
@@ -128,10 +123,6 @@ void worker()
         partfileinfo.n_consonants = 0;
         partfileinfo.in_word = 0;
         partfileinfo.max_chars = 0;
-        partfileinfo.counting_array = (int **)calloc(50, sizeof(int *));
-        for (int j = 0; j<50; j++){
-            partfileinfo.counting_array[j] = (int *)calloc(j+2, sizeof(int));
-        }
         partfileinfo.done = false;
         partfileinfo.firstProcessing = false;
         

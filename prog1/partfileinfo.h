@@ -21,7 +21,7 @@ typedef struct {
    int n_consonants;    /* number consonants */
    int in_word;     /* to control the reading of a word */
    int max_chars;   /* max chars found in a word */
-   int **counting_array;    /*  to store and process the final countings */
+   int counting_array[50][52];    /*  to store and process the final countings */
    bool firstProcessing;
    bool done;        /* to control the end of processing */ 
 } PartFileInfo;
