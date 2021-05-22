@@ -116,13 +116,18 @@ int is_end_of_word(unsigned char c)
     else if ((c=='-') || (c=='"') || (c=='[')||(c==']')||(c=='(')||(c==')')){ /* separation */
         return 1;
     }
-    else if(c==0x27){ /* apostrophe */
-        return 1;
-    }
     else if(c=='.' || c == ',' || c==':' || c==';' || c == '?' || c =='!'){ /* punctuation */
         return 1;
     }
     else{
         return 0;
     }
+}
+
+int is_apostrophe_merge(unsigned char c)
+{
+    if(c==0x27){ /* apostrophe */
+        return 1;
+    }
+    else return 0;
 }

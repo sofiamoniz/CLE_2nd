@@ -1,2 +1,2 @@
-# mpicc -Wall -o main main.c
-# mpiexec -n 1 ./main text0.txt
+# mpicc -Wall -o main main.c worker.c dispatcher.c
+# mpiexec -n 2 ./main text0.txt
