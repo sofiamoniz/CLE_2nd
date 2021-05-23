@@ -95,7 +95,6 @@ void loadFilesInfo(int numberFiles, char *inputFilenames[])
  *
  *  Obtain next data chunk (buffer) of the current file being processed.
  * 
- *  @param fileCurrentlyProcessed file that is currently being processed
  *  @param buf responsible for carrying the data chunks. Buf (buffer) has size of MAX_BYTES_TO_READ bytes + MAX_SIZE_WORD -> this way,
  *  we prevent the case where the last word that was readen is not complete. It will be a set of complete words
  * 
@@ -176,7 +175,7 @@ int getDataChunk(char *buf)
 /**
  *  \brief Function savePartialResults.
  *
- *  Save partial results of workers so that later the final opeartions can be done.
+ *  Save partial results of workers in a final struct.
  * 
  *  @param partfileinfo structure containing the partial results from that worker.
  * 

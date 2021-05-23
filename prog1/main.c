@@ -1,4 +1,9 @@
 /**
+ * 
+ * mpicc -Wall -o main main.c dispatcher.c worker.c
+ * mpiexec -n <number_processes> ./main <text_file>
+ * Example: mpiexec -n 2 ./main text0.txt
+ * 
  *  \file main.c
  *
  *  \brief Problem: Assignment 2 - MPI (circular cross-correlation)
@@ -32,7 +37,7 @@ int MAX_BYTES_TO_READ = 12;
 /**
  *  \brief Dispatcher life cycle.
  *
- *  Sends to workers chunks of data to be processed, waits for their processing, saves partial results
+ *  Loads file info, sends to workers chunks of data to be processed, waits for their processing, saves partial results
  *  and, when all work is done, lets them know of that fact and prints the results of the whole processing.
  * 
  *  @param filenames names of the files to be processed
@@ -96,7 +101,7 @@ void dispatcher(char *filenames[], int nFiles)
 /**
  *  \brief Worker life cycle.
  *
- *  Processes the received chunk of data and delivers the results back to the dispatcher.
+ *  Processes the received chunk of data and delivers the results to the dispatcher.
  * 
  *  @param rank rank of the worker process
  * 

@@ -62,23 +62,9 @@ void loadFilesInfo(int nFiles, char *filenames[], Signal *signals)
 
         fread(signals[i].y, sizeof (double), nElements, fp);     /* signal y */
         
-        fclose(fp);
-
-        FILE *fpResult;                                  /* file with correct result */
-        char fileResult[16];
-        sprintf(fileResult, "newSigVal0%c.bin", filenames[i][7]);
-        fpResult= fopen(fileResult, "rb");
-        if (fpResult == NULL) 
-        { 
-            printf("Error %s",fileResult);
-            exit(0); 
-        } 
-
-        fseek(fpResult, sizeof (int) + 2 * (nElements * sizeof (double)), SEEK_SET );  /* go to where XY is stored */
-        
         fread(signals[i].xyCorrect, sizeof (double), nElements, fp);  /* correct signal xy */
         
-        fclose(fpResult);
+        fclose(fp);
     }
 
 }
@@ -88,9 +74,9 @@ void loadFilesInfo(int nFiles, char *filenames[], Signal *signals)
  * 
  *  @param workerId id of the current worker
  *  @param fileId id of the current worker
- *  @param signals structure containg the information of the current signal
+ *  @param signals structure containg all final information
  *  @param val value to store
- *  @param point
+ *  @param point point of processing
  *
  */
 void savePartialResult(int workerId, int fileId, Signal *signals, double val, int point) 
@@ -102,7 +88,7 @@ void savePartialResult(int workerId, int fileId, Signal *signals, double val, in
  *  \brief Check if all the convolution points processed were correctly computed.
  * 
  *  @param nFiles total number of files
- *  @param signals structure containg the information of the current signal
+ *  @param signals structure containg all final information
  *
  */
 void checkProcessingResults(int nFiles, Signal *signals) 

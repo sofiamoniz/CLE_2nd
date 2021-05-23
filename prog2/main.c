@@ -1,4 +1,8 @@
 /**
+ * mpicc -Wall -o main main.c dispatcher.c worker.c
+ * mpiexec -n <number_processes> ./main <new_binary_file>
+ * Example: mpiexec -n 2 ./main newSigVal01.bin
+ * 
  *  \file main.c
  *
  *  \brief Problem: Assignment 2 - MPI (circular cross-correlation)
@@ -23,7 +27,7 @@ int nWorkers;
 /**
  *  \brief Dispatcher life cycle.
  *
- *  Sends to workers chunks of data to be processed, waits fortheir processing, saves partial results
+ *  Loads file info, sends to workers chunks of data to be processed, waits fortheir processing, saves partial results
  *  and, when all work is done, lets them know of the fact and prints the results of the whole processing.
  * 
  *  @param filenames names of the files to be processed
