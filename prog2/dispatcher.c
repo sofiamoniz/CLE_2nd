@@ -28,6 +28,10 @@ typedef struct {
 
 /**
  *  \brief Load all necessary data to the Signal struct, for each file.
+ * 
+ *  @param nFiles num of files passed as argument
+ *  @param filenames names of the files passed as argument
+ *  @param signals structure containg all signals
  *
  */
 void loadFilesInfo(int nFiles, char *filenames[], Signal *signals) 
@@ -80,7 +84,13 @@ void loadFilesInfo(int nFiles, char *filenames[], Signal *signals)
 }
 
 /**
- *  \brief Save the convolution point that was processed by a worker.
+ *  \brief Saves the convolution point that was processed by a worker.
+ * 
+ *  @param workerId id of the current worker
+ *  @param fileId id of the current worker
+ *  @param signals structure containg the information of the current signal
+ *  @param val value to store
+ *  @param point
  *
  */
 void savePartialResult(int workerId, int fileId, Signal *signals, double val, int point) 
@@ -90,6 +100,9 @@ void savePartialResult(int workerId, int fileId, Signal *signals, double val, in
 
 /**
  *  \brief Check if all the convolution points processed were correctly computed.
+ * 
+ *  @param nFiles total number of files
+ *  @param signals structure containg the information of the current signal
  *
  */
 void checkProcessingResults(int nFiles, Signal *signals) 

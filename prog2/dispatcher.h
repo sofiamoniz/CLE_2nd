@@ -24,10 +24,13 @@ typedef struct {
    bool done;   /* to control the end of processing */ 
 } Signal;
 
-void loadFilesInfo(int nFiles, char *filenames[], Signal *signals);
+/** \brief The dispatcher loads all necessary data to the Signal struct, for each file.  */
+extern void loadFilesInfo(int nFiles, char *filenames[], Signal *signals);
 
+/** \brief Saves the convolution point that was processed by a worker.  */
 extern void savePartialResult(int workerId, int fileId, Signal *signals, double val, int point);
 
+/** \brief Check if all the convolution points processed were correctly computed.  */
 extern void checkProcessingResults(int nFiles, Signal *signals);
 
 #endif

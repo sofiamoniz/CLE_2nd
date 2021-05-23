@@ -22,7 +22,7 @@ typedef struct {
    int in_word;     /* to control the reading of a word */
    int max_chars;   /* max chars found in a word */
    int counting_array[50][51];    /*  to store and process the final countings  -> counting_array[MAX_SIZE_WORD][MAX_SIZE_WORD+1]*/
-   bool firstProcessing;
+   bool firstProcessing; /* indicates wether it is the first time processing that file or not */
    bool done;        /* to control the end of processing */ 
 } PartFileInfo;
 

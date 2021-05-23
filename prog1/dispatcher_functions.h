@@ -124,6 +124,16 @@ int is_end_of_word(unsigned char c)
     }
 }
 
+/**
+ *  \brief Function is_apostrophe_merge.
+ *
+ *   check if is apostrophe, which means it merges words.
+ * 
+ *  @param c char to be checked
+ *  @return 1 if it is apostrophe, 0 otherwise.
+ *
+ */
+
 int is_apostrophe_merge(unsigned char c)
 {
     if(c==0x27){ /* apostrophe */

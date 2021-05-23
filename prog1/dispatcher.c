@@ -44,7 +44,6 @@ static PartFileInfo * partfileinfos;
  * 
  *  @param nFiles num of files passed as argument
  *  @param inputFilenames names of the files passed as argument
- *  @param partfileinfos PartFileInfo struct
  *
  */
 void loadFilesInfo(int numberFiles, char *inputFilenames[]) 
@@ -70,7 +69,8 @@ void loadFilesInfo(int numberFiles, char *inputFilenames[])
             exit(0); 
         } 
         
-        partfileinfos[i].fileId = i;    /* initialize variables */
+        /* initialize variables of the structure*/
+        partfileinfos[i].fileId = i;    
         partfileinfos[i].n_words = 0;
         partfileinfos[i].n_chars = 0;
         partfileinfos[i].n_consonants = 0;
@@ -91,13 +91,15 @@ void loadFilesInfo(int numberFiles, char *inputFilenames[])
 }
 
 /**
- *  \brief Obtain next data chunk (buffer) of the current file being processed
+ *  \brief Function getDataChunk. 
  *
- *  Operation carried out by workers.
+ *  Obtain next data chunk (buffer) of the current file being processed.
  * 
  *  @param fileCurrentlyProcessed file that is currently being processed
  *  @param buf responsible for carrying the data chunks. Buf (buffer) has size of MAX_BYTES_TO_READ bytes + MAX_SIZE_WORD -> this way,
-    we prevent the case where the last word that was readen is not complete. It will be a set of complete words
+ *  we prevent the case where the last word that was readen is not complete. It will be a set of complete words
+ * 
+ *  @return 1 if there is no more data to process, 0 otherwise.
  * 
  */
 int getDataChunk(char *buf)
@@ -122,7 +124,7 @@ int getDataChunk(char *buf)
         exit(0); 
     } 
 
-    memset(buf, 0, MAX_BYTES_READ+MAX_SIZE_WRD);  /*  clean array */
+    memset(buf, 0, MAX_BYTES_READ+MAX_SIZE_WRD);  /*  clean buffer */
 
     while(true)
     {
@@ -160,7 +162,7 @@ int getDataChunk(char *buf)
 
         if (c == WEOF)    /* end of file */
         {
-            partfileinfos[fileCurrentlyProcessed].done = true;
+            partfileinfos[fileCurrentlyProcessed].done = true; /* end of the processing of the current file */
             break;
         }
 
@@ -171,8 +173,17 @@ int getDataChunk(char *buf)
     return 0;
 }
 
+/**
+ *  \brief Function savePartialResults.
+ *
+ *  Save partial results of workers so that later the final opeartions can be done.
+ * 
+ *  @param partfileinfo structure containing the partial results from that worker.
+ * 
+ */
 
-void savePartialResults(PartFileInfo partfileinfo) {
+void savePartialResults(PartFileInfo partfileinfo) 
+{
 
     partfileinfos[fileCurrentlyProcessed].n_words += partfileinfo.n_words;
     partfileinfos[fileCurrentlyProcessed].n_chars += partfileinfo.n_chars;
@@ -192,14 +203,15 @@ void savePartialResults(PartFileInfo partfileinfo) {
 /**
  *  \brief Print all final results.
  *
- *  Operation carried out by main thread.
+ *  Makes all the final calculations and prints the final results.
  * 
- *  @param partfileinfos PartFileInfo struct
  */
 
-void printProcessingResults() {
+void printProcessingResults() 
+{
 
-    for (int i=0; i<nFiles; i++) {                  /* for each file */
+    for (int i=0; i<nFiles; i++) 
+    {                  /* for each file */
 
         printf("\nFile name: %s\n", filenames[i]);
 
@@ -208,7 +220,8 @@ void printProcessingResults() {
         printf("Word lenght\n");
 
 		printf("   ");
-		for(int j = 0; j<partfileinfos[i].max_chars; j++){
+		for(int j = 0; j<partfileinfos[i].max_chars; j++)
+        {
 			printf("%5d ", j+1);
 		}
 		printf("\n");
@@ -216,9 +229,11 @@ void printProcessingResults() {
 		printf("   ");   /* Print  number words each word length */
 		int *soma = (int *)calloc(partfileinfos[i].max_chars, sizeof(int));
 		int tmp = 0;
-		for(int j = 0; j<partfileinfos[i].max_chars; j++){
+		for(int j = 0; j<partfileinfos[i].max_chars; j++)
+        {
 			int ind_sum = 0;
-			for(int k = 0; k<j+2; k++){
+			for(int k = 0; k<j+2; k++)
+            {
 				ind_sum = ind_sum + partfileinfos[i].counting_array[j][k];
 			}
 			tmp = tmp + ind_sum;
@@ -228,7 +243,8 @@ void printProcessingResults() {
 		printf("\n");
 
 		printf("   ");     /* final print */
-		for(int j = 0; j<partfileinfos[i].max_chars; j++){
+		for(int j = 0; j<partfileinfos[i].max_chars; j++)
+        {
 			double s = (double)soma[j];
 			double st = (double)tmp;
 			double r = (double)(s/st*100);
@@ -236,17 +252,22 @@ void printProcessingResults() {
 		}
 		printf("\n");
 
-		for(int j = 0; j<partfileinfos[i].max_chars+1; j++){ 
+		for(int j = 0; j<partfileinfos[i].max_chars+1; j++)
+        { 
 			printf("%2d ", j);
-			for(int k = 0; k<partfileinfos[i].max_chars; k++){ 
-				if(k<j-1){
+			for(int k = 0; k<partfileinfos[i].max_chars; k++)
+            { 
+				if(k<j-1)
+                {
 					printf("      ");
 				}
-				else if(soma[k]==0){ 
+				else if(soma[k]==0)
+                { 
 					double r = 0;
 					printf("%5.1f ", r);
 				}
-				else{
+				else
+                {
 					double cell = (double)partfileinfos[i].counting_array[k][j];
 					double s = (double)soma[k];
 					double r = (double)(cell/s*100);

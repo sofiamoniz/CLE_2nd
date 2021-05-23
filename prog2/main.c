@@ -26,6 +26,8 @@ int nWorkers;
  *  Sends to workers chunks of data to be processed, waits fortheir processing, saves partial results
  *  and, when all work is done, lets them know of the fact and prints the results of the whole processing.
  * 
+ *  @param filenames names of the files to be processed
+ *  @param nFiles num of files to be processed
  */
 void dispatcher(char *filenames[], int nFiles) 
 {
@@ -108,6 +110,8 @@ void dispatcher(char *filenames[], int nFiles)
  *
  *  Processes the received chunk of data and delivers the results back to the dispatcher.
  * 
+ *  @param rank rank of the worker process
+ * 
  */
 void worker(int rank) 
 {
@@ -148,6 +152,8 @@ void worker(int rank)
  *
  *  Main thread that runs the program / executes the processes.
  * 
+ *  @param argc
+ *  @param argv
  */
 int main(int argc, char **argv) 
 {

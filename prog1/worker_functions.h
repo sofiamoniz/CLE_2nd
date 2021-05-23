@@ -120,7 +120,7 @@ int is_apostrophe(unsigned char c)
 /**
  *  \brief Function size_of_array.
  *
- *   Returns size of an array
+ *   Returns size of a char array
  * 
  *  @param c array to be checked
  *  @return i, the size of the array
